@@ -1,0 +1,15 @@
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.csproj.AssemblyReference.cache
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.GeneratedMSBuildEditorConfig.editorconfig
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.AssemblyInfoInputs.cache
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.AssemblyInfo.cs
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.csproj.CoreCompileInputs.cache
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\bin\Debug\net7.0\MabOtherTest.exe
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\bin\Debug\net7.0\MabOtherTest.deps.json
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\bin\Debug\net7.0\MabOtherTest.runtimeconfig.json
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\bin\Debug\net7.0\MabOtherTest.dll
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\bin\Debug\net7.0\MabOtherTest.pdb
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.dll
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\refint\MabOtherTest.dll
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.pdb
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\MabOtherTest.genruntimeconfig.cache
+D:\CPLUSTESTS\MabOtherTest\MabOtherTest\obj\Debug\net7.0\ref\MabOtherTest.dll
