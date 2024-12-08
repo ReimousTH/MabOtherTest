@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseOutputPath>..\App\Build</BaseOutputPath>
+    <BaseIntermediateOutputPath>..\App\obj</BaseIntermediateOutputPath>
+    <PackageOutputPath>$(OutputPath)\</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
