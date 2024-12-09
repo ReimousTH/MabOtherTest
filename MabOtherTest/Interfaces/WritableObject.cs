@@ -52,6 +52,25 @@ namespace MabOtherTest.Interfaces
             return file;
         }
 
+
+        public virtual Y Read<T, Y>() where T : IWritable where Y : IWritable
+        {
+            return (Y)(this as IWritable); 
+        }
+        public virtual void OnMarkSet()
+        {
+            this.file.SetMark<uint>(this, "Offset", file.GetPosition());
+        }
+
+        public T Read<T>() where T : IWritable
+        {
+            return Read<T, T>();
+        }
+        public virtual void ResetRead()
+        {
+            file = new FFile();
+        }
+
         public WritableObject()
         {
          

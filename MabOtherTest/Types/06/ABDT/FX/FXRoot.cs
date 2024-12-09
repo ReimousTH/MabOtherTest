@@ -37,6 +37,15 @@ namespace MabOtherTest.Types
 
         }
 
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            for (int i =  0; i < nodes.Count; i++)
+            {
+                nodes[i].ResetRead();
+            }
+        }
+
 
     }
 }

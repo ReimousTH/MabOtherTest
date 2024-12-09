@@ -2,7 +2,9 @@
 using MabOtherTest.Types;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -15,16 +17,27 @@ namespace MabOtherTest.BaseFile
         #region Fields
         Stream stream = new MemoryStream();
         List<KeyValuePair<uint, PointerIWritable>> _flush_offsets = new List<KeyValuePair<uint, PointerIWritable>>();
-
-
         List<uint> _flushed_offsets = new();
+        Dictionary<IWritable, Dictionary<string,object>> readmarks = new();
+
         int shift = 0;
         #endregion
 
         #region Constructor
         public FFile()
         {
-
+            stream = new MemoryStream();
+        }
+        public void OpenFile(string path)
+        {
+            stream = new MemoryStream(File.ReadAllBytes(path));
+        }
+        public void OpenFile(FFile ffile)
+        {
+            this.stream = ffile.stream;
+        }
+        public FFile(string path){
+            stream = new MemoryStream(File.ReadAllBytes(path)); 
         }
         #endregion
 
@@ -102,6 +115,12 @@ namespace MabOtherTest.BaseFile
             stream.Position = seekOrigin == SeekOrigin.Begin ? jump : jump + stream.Position;
         }
 
+        public void Jump(int jump, SeekOrigin seekOrigin = SeekOrigin.Begin)
+        {
+            stream.Position = seekOrigin == SeekOrigin.Begin ? jump : jump + stream.Position;
+        }
+
+
         public void MergeData(FFile fFile)
         {
             var pre_len = GetLength();
@@ -109,11 +128,37 @@ namespace MabOtherTest.BaseFile
             _flush_offsets.AddRange(fFile._flush_offsets.Select(zx => new KeyValuePair<uint, PointerIWritable>((uint)(zx.Key + pre_len), zx.Value)));
         }
 
+        public void SetMark<T>(IWritable key,string mark_key,T mark_data) where T : struct
+        {
+            if (readmarks.TryGetValue(key, out var value))
+            {
+                this.readmarks[key][mark_key] = mark_data;
+            }
+            else
+            {
+
+                this.readmarks.Add(key, new());
+                this.readmarks[key][mark_key] = mark_data;
+            }     
+        }
+        public T GetMark<T>(IWritable key,string mark_key) where T : struct
+        {
+            return (T)this.readmarks[key][mark_key];
+        }
+
         #endregion
 
 
         #region WriteReadAtMacro
         private T ExecWithPosition<T>(uint position, Func<T> action)
+        {
+            var originalPosition = GetPosition();
+            Jump(position);
+            T result = action();
+            Jump(originalPosition);
+            return result;
+        }
+        private T ExecWithPosition<T>(int position, Func<T> action)
         {
             var originalPosition = GetPosition();
             Jump(position);
@@ -135,7 +180,7 @@ namespace MabOtherTest.BaseFile
         #region Readers
         public byte[] ReadBytes(uint count)
         {
-            byte[] buffer = new byte[(int)GetLength()];
+            byte[] buffer = new byte[(int)count];
             stream.ReadExactly(buffer, 0, (int)count);
             return buffer;
         }
@@ -143,6 +188,80 @@ namespace MabOtherTest.BaseFile
         {
             return ExecWithPosition(position, () => ReadBytes(count));
         }
+
+        public T ReadBytesAt<T>(uint position)
+        {
+            return ExecWithPosition<T>(position, () => ReadType<T>());
+        }
+
+        public T ReadType<T>()
+        {
+            var _type_info = typeof(T);
+            if (_type_info.IsPrimitive)
+            {
+                return ReadTypeBase<T>();
+
+            }
+            else if (typeof(WritableObject).IsAssignableFrom(_type_info))
+            {
+                // (obj as WritableObject).AddOffsetShift(GetOffsetShift());
+                //   WriteTypeIWritable(obj as WritableObject);
+                return (T)ReadTypeIWritable<IWritable>();
+            }
+            else
+            {
+                return (T)new Object();
+            }
+        }
+        public unsafe T ReadTypeBase<T>()
+        {
+            var type = typeof(T);
+            var size = sizeof(T);
+            var bytes_readed = ReadBytes((uint)size).Reverse().ToArray();
+            fixed (byte* conv = bytes_readed)
+            {
+                return *(T*)conv;
+            }    
+        }
+        public unsafe T ReadTypeBaseAt<T>(uint position)
+        {
+            return ExecWithPosition<T>(position, () => ReadTypeBase<T>());
+        }
+        public unsafe T ReadTypeBaseAt<T>(int position)
+        {
+            return ExecWithPosition<T>(position, () => ReadTypeBase<T>());
+        }
+        public Y ReadTypeIWritable<T,Y>(uint BaseOffset = 0) where T : IWritable where Y :IWritable
+        {
+            var type = typeof(T);
+            T obj = (T)Activator.CreateInstance(type);
+            obj.GetFFile().OpenFile(this);
+            obj.GetFFile().SetMark(obj, "Offset", BaseOffset); //:)
+            obj.Read<T,Y>();
+            return (Y)(obj as IWritable);
+        }
+        public T ReadTypeIWritable<T>(uint BaseOffset = 0) where T : IWritable
+        {
+            return ReadTypeIWritable<T,T>(BaseOffset);
+        }
+
+        public Y ReadTypePointer<T,Y>(uint BaseOffset, object[] constructor_param = null) where T : IWritable where Y : IWritable
+        {
+            var type = typeof(T);
+            var typeY = typeof(Y);
+            var pointer = ReadTypeBase<uint>();
+            Y obj = (Y)Activator.CreateInstance(type,constructor_param);
+            var or = GetPosition();
+            obj.GetFFile().OpenFile(this);
+            obj.GetFFile().Jump(BaseOffset + pointer, SeekOrigin.Begin);
+            obj.GetFFile().SetMark(obj, "Offset", BaseOffset); //:)
+            obj = obj.Read<T,Y>();
+            Jump(or, SeekOrigin.Begin);
+
+
+            return obj;
+        }
+
         #endregion
 
 
@@ -371,7 +490,48 @@ namespace MabOtherTest.BaseFile
 
         public byte[] GetBytes() => (byte[])this;
 
+        public Y Read<T,Y>() where T : IWritable where Y :IWritable { return (Y)(this as IWritable); }
+
+        public void OnMarkSet() { }
+
         public FFile GetFFile() => this;
+
+        //offset exclude baseoffset
+        public List<Y> ReadListOfIWriteableAt<T,Y>(uint offset,uint BaseOffset,uint item3, object[] constructor_param = null) where T : IWritable where Y :IWritable
+        {
+            var p = GetPosition();
+            List<Y> list = new List<Y>();
+            for (int i = 0;i < item3; i++) {
+                uint offset_i = ((uint)((offset + BaseOffset) + (i * 4))); //&offset[table]
+                Jump(offset_i);        
+                list.Add(ReadTypePointer<T,Y>(BaseOffset));
+            }
+            Jump(p);
+            return list;
+        }
+
+        public T Read<T>() where T : IWritable
+        {
+            return Read<T, T>();
+        }
+
+        public List<Y> ReadArrayType<T, Y>(uint BaseOffset, uint item3, object[] constructor_param = null) where T : IWritable where Y : IWritable
+        {
+            var p = GetPosition();
+            List<Y> list = new List<Y>();
+            for (int i = 0; i < item3; i++)
+            {
+                var element = ReadTypeIWritable<T, Y>(BaseOffset);
+                list.Add(element);
+            }
+            Jump(p);
+            return list;
+        }
+
+        public void ResetRead()
+        {
+            stream = new MemoryStream();
+        }
 
         #endregion
 

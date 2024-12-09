@@ -11,6 +11,10 @@ namespace MabOtherTest.Types
 {
     public class SectionABDA : SectionPOFO
     {
+        public SectionABDA():base(0)
+        {
+
+        }
 
         public SectionABDT aBDT = new(0);
         public SectionABDA(int shift):base(shift)
@@ -54,5 +58,35 @@ namespace MabOtherTest.Types
             base.Write();
             file.WriteTypeAt(point + 0x4, pre_len); // ?? makes no sense at all 
         }
+        public override Y Read<T,Y>()
+        {
+            OnMarkSet();
+
+            var point = file.GetPosition();
+            var magic = file.ReadType<uint>();
+            var size = file.ReadType<uint>();
+            var offset_chunk_size = file.ReadType<uint>();
+            file.Jump(4, SeekOrigin.Current); 
+            var version = file.ReadType<uint>();
+            var abdt_count =  file.ReadType<uint>();
+            var size2 = file.ReadType<uint>();
+            file.Jump(4, SeekOrigin.Current);
+
+
+            aBDT=file.ReadTypePointer<SectionABDT, SectionABDT>(point);
+            
+            //POFO
+            base.Read<SectionPOFO,SectionPOFO>();
+
+
+            return (Y)(this as IWritable);
+        }
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            aBDT.ResetRead();
+        }
+
+
     }
 }

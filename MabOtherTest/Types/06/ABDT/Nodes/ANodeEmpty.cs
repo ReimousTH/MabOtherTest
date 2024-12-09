@@ -1,4 +1,5 @@
-﻿using MabOtherTest.Interfaces;
+﻿using MabOtherTest.BaseFile;
+using MabOtherTest.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,26 @@ namespace MabOtherTest.Types
         public ANodeEmpty() {
         }
 
-     
+
+        public override uint GetNodeType()
+        {
+            return 0xFFFFFFFF;
+        }
         public override void Write()
         {
             WriteIndex();
         }
-   
+        public override Y Read<T,Y>()
+        {
+
+            return (Y)(this as IWritable);
+        }
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            
+        }
+
 
     }
 }

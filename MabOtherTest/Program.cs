@@ -1,5 +1,7 @@
-﻿using MabOtherTest.Interfaces;
+﻿using MabOtherTest.BaseFile;
+using MabOtherTest.Interfaces;
 using MabOtherTest.Types;
+using System;
 
 namespace MabOtherTest
 {
@@ -7,7 +9,23 @@ namespace MabOtherTest
     {
         static void Main(string[] args)
         {
+            
+            SectionMRAB sectionMRAB = new SectionMRAB(0);
+            sectionMRAB.file.OpenFile("D:\\Games\\X360\\Sonic06\\NoArcsVersion\\Sonic06NoArc\\Game\\xenon\\effect\\player\\sonic\\so_bound00.mab");
+            sectionMRAB.OnMarkSet();
+            var mbra_new = sectionMRAB.Read<SectionMRAB>();
 
+            mbra_new.ResetRead();
+      
+
+            mbra_new.Write();
+            mbra_new.Flush();
+            mbra_new.file.WriteToExternalDrive("D:\\Games\\X360\\Sonic06\\NoArcsVersion\\Sonic06NoArc\\Game\\xenon\\effect\\player\\sonic\\so_spincharge.mab");
+
+            return;
+
+
+      
             SectionMRAB MRRAB = new SectionMRAB(0);
             MRRAB.abda.aBDT.Root = new ANode40()
             {
@@ -16,12 +34,12 @@ namespace MabOtherTest
                     {
                     nodes = new List<ANodeBase>()
                     {
-                        new ANode01(){Index0 = 1} // here preffered
+                        new ANode01(){ Indexes = new List<uint>(){1} } // here preffered
                     },
                     //Index Nodes (Empty)
                     nodes2 = new List<ANodeBase>()
                     {
-                        new ANodeEmpty(){Index0 = 0}
+                        new ANodeEmpty(){Indexes = new List<uint>(){0}}
                     },
                     nodes7 = new List<FXRoot>()
                     {

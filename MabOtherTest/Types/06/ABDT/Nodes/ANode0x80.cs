@@ -8,19 +8,20 @@ using System.Xml.Linq;
 
 namespace MabOtherTest.Types
 {
-    public class ANode180 : ANodeBase
+    public class ANode80 : ANodeBase
     {
 
-        public ANode180()
+        public ANode80()
         {
             this.nodesflag = 8;
         }
-        public ANode180(int IndexCount) : base(IndexCount)
+        public ANode80(int IndexCount):base(IndexCount)
         {
+            this.nodesflag = 8;
         }
 
 
-        public ANode180(uint NodesFlag)
+        public ANode80(uint NodesFlag)
         {
             this.nodesflag = NodesFlag;
         }
@@ -157,8 +158,6 @@ namespace MabOtherTest.Types
             var baseoffs = file.GetMark<uint>(this, "Offset");
             var offset = file.GetPosition();
 
-            var nodes_saved = file.GetMark<(uint, uint, uint)>(this, "ChildCountOffset");
-
             var nodes2_count = file.ReadType<uint>();
             var nodes2_offset = file.ReadType<uint>();
 
@@ -172,12 +171,12 @@ namespace MabOtherTest.Types
             var HaveIndex1_Child = nodes3_count > 0 ? true : false;
             var HaveIndex2_Child = nodes4_count > 0 ? true : false;
 
-         
-         
-            Console.WriteLine($"Node0x180[Children-Regular] : {(file.ReadTypeBaseAt<uint>(offset-0x4)):x}");
+
+
+            Console.WriteLine($"Node0x180[Children-Regular] : {(file.ReadTypeBaseAt<uint>(offset - 0x4)):x}");
             if (HaveIndex0_Child || HaveIndex1_Child || HaveIndex2_Child)
             {
-                Console.WriteLine($"Node0x180[Other] : {(nodes2_offset+baseoffs):x}:{(nodes3_offset+ baseoffs):x}:{(nodes4_offset + baseoffs):x}");
+                Console.WriteLine($"Node0x180[Other] : {(nodes2_offset + baseoffs):x}:{(nodes3_offset + baseoffs):x}:{(nodes4_offset + baseoffs):x}");
             }
 
 
@@ -192,25 +191,53 @@ namespace MabOtherTest.Types
             var nodes7_count = file.ReadType<uint>();
             var nodes7_offset = file.ReadType<uint>();
 
-
-
-            uint flags = (uint)new int[] { (int)nodes_saved.Item2, (int)nodes2_count, (int)nodes3_count, (int)nodes4_count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
-            flags -= 1;
-            if (flags <= 0) flags = 0;
-
+            uint flags = (uint)new int[] { nodes2.Count, nodes3.Count, nodes4.Count, nodes5.Count, nodes6.Count, nodes7.Count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
             this.Indexes.Capacity = (int)flags;
 
 
             if (nodes5_count > 0 || nodes6_count > 0 || nodes7_count > 0)
             {
-                Console.WriteLine($"Node0x180[FX] : {(nodes5_count + baseoffs):x}:{(nodes6_offset + baseoffs):x}:{(nodes7_offset + baseoffs):x}");
+                Console.WriteLine($"Node0x80[FX] : {(nodes5_count + baseoffs):x}:{(nodes6_offset + baseoffs):x}:{(nodes7_offset + baseoffs):x}");
             }
 
             base.ReadChildren(); //
         }
 
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                nodes[i].ResetRead();
+            }
+            for (int i = 0; i < nodes2.Count; i++)
+            {
+                nodes2[i].ResetRead();
+            }
+            for (int i = 0; i < nodes3.Count; i++)
+            {
+                nodes3[i].ResetRead();
+            }
+            for (int i = 0; i < nodes4.Count; i++)
+            {
+                nodes4[i].ResetRead();
+            }
+            for (int i = 0; i < nodes5.Count; i++)
+            {
+                nodes5[i].ResetRead();
+            }
+            for (int i = 0; i < nodes6.Count; i++)
+            {
+                nodes6[i].ResetRead();
+            }
+            for (int i = 0; i < nodes7.Count; i++)
+            {
+                nodes7[i].ResetRead();
+            }
+          
+        }
 
-        public void CheckNode(List<ANodeBase> nodes,uint value)
+        public void CheckNode(List<ANodeBase> nodes, uint value)
         {
             foreach (var node in nodes)
             {
@@ -225,14 +252,11 @@ namespace MabOtherTest.Types
         {
             base.WriteNodes();
 
-            uint flags = (uint)new int[] { nodes.Count, nodes2.Count, nodes3.Count, nodes4.Count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
-            flags -= 1;
-            if (flags <= 0) flags = 0;
-
-            CheckNode(nodes,flags);
-            CheckNode(nodes2,flags);
-            CheckNode(nodes3,flags);
-            CheckNode(nodes4,flags);
+            uint flags = (uint)new int[] { nodes2.Count, nodes3.Count, nodes4.Count, nodes5.Count, nodes6.Count, nodes7.Count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
+            CheckNode(nodes, flags);
+            CheckNode(nodes2, flags);
+            CheckNode(nodes3, flags);
+            CheckNode(nodes4, flags);
 
 
 
@@ -257,9 +281,9 @@ namespace MabOtherTest.Types
 
 
 
-          //  file.WriteType(0); // ?not sure
+         //   file.WriteType(0); // ?not sure
         }
- 
+
 
 
     }

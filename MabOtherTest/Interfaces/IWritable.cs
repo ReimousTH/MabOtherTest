@@ -21,5 +21,16 @@ namespace MabOtherTest.Interfaces
         public List<uint> GetFlushedOffsets();
 
         public byte[] GetBytes();
+
+
+
+
+        public Y Read<T, Y>() where T : IWritable where Y : IWritable;
+        public T Read<T>() where T : IWritable;
+
+        public void ResetRead(); //Reset All Read Mostly file = new FFile()
+
+        public void OnMarkSet();
+
     }
 }

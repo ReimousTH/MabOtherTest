@@ -9,21 +9,21 @@ using System.Xml.Linq;
 
 namespace MabOtherTest.Types
 {
-    public class ANode01 : ANodeBase
+    public class ANode00 : ANodeBase
     {
-        public ANode01()
+        public ANode00()
         {
 
         }
-        public ANode01(int IndexCount) : base(IndexCount)
+        public ANode00(int IndexCount) : base(IndexCount)
         {
         }
-
+   
 
         //parameters
         public override uint GetNodeType()
         {
-            return 0x1;
+            return 0x0;
         }
 
         public override void Write()
@@ -35,10 +35,11 @@ namespace MabOtherTest.Types
         {
             
         }
+
         public override Y Read<T,Y>()
         {
             ReadHeadIndex();
-        
+         
             return (Y)(this as IWritable);
         }
 

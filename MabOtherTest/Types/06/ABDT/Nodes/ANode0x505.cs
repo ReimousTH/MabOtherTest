@@ -10,9 +10,18 @@ namespace MabOtherTest.Types
 {
     public class ANode505 : ANodeBase
     {
-  
+
+        public ANode505()
+        {
+      
+        }
+        public ANode505(int IndexCount):base(IndexCount)
+        {
+        }
+
+
         //parameters
-        public override uint GetType()
+        public override uint GetNodeType()
         {
             return 0x505;
         }

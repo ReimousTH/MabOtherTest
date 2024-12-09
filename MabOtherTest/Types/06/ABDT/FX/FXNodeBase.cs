@@ -45,6 +45,15 @@ namespace MabOtherTest.Types
             file.WriteType(parameters.Count);
             file.WriteListOfIWritableSinglePointer(parameters); //FXBase (need to make)
         }
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                parameters[i].ResetRead();
+            }
+
+        }
 
 
     }

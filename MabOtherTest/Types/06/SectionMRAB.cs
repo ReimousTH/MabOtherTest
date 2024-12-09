@@ -1,4 +1,5 @@
-﻿using MabOtherTest.Interfaces;
+﻿using MabOtherTest.BaseFile;
+using MabOtherTest.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,5 +41,37 @@ namespace MabOtherTest.Types
             file.WriteTypeAt(0x8, file.GetLength() - 0x10);
 
         }
+
+
+        //Read-Info
+
+
+        public override Y Read<T,Y>()
+        {
+            this.point = file.GetPosition();
+            var HEADER = file.ReadType<uint>();
+            var NPOINT = file.ReadType<uint>();
+            var NSIZE =  file.ReadType<uint>();
+            var NFLAG = file.ReadType<uint>();
+
+            base.Read<SectionBBINA, SectionBBINA>();
+            var point_2 = file.GetPosition();
+            Console.WriteLine($"point : {file.GetPosition():x}");
+
+            abda = file.ReadTypePointer<SectionABDA, SectionABDA>(point_2);
+            abrs = file.ReadTypePointer<SectionABRS, SectionABRS>(point_2);
+
+         
+         
+            return (Y)(this as IWritable);
+        }
+
+        public override void ResetRead()
+        {
+            base.ResetRead();
+            abda.ResetRead();
+            abrs.ResetRead();
+        }
+
     }
 }

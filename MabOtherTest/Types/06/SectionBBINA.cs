@@ -66,5 +66,25 @@ namespace MabOtherTest.Types
         {
 
         }
+
+        public override Y Read<T,Y>()
+        {
+            var point = file.GetPosition();
+            var BBINA_SIZE = file.ReadType<uint>();
+            var BBINA_DATA_SIZE = file.ReadType<uint>();
+            var BBINA_BINA_SIZE = file.ReadType<uint>();
+            file.Jump(4, SeekOrigin.Current);
+            file.Jump(4, SeekOrigin.Current);
+            var BBINA_VERSION = file.ReadType<uint>();
+            var BBINA_MAGIC = file.ReadType<uint>();
+            file.Jump(4, SeekOrigin.Current);
+
+        
+
+
+
+            return (Y)(this as IWritable);
+
+        }
     }
 }
