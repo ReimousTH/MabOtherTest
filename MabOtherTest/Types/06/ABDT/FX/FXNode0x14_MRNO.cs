@@ -32,6 +32,10 @@ namespace MabOtherTest.Types
         {
             return 0x14;
         }
-    
+        public override Y Read<T, Y>()
+        {
+            return base.Read<T, Y>();
+        }
+
     }
 }

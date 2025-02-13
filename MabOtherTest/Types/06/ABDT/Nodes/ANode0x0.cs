@@ -39,7 +39,6 @@ namespace MabOtherTest.Types
         public override Y Read<T,Y>()
         {
             ReadHeadIndex();
-         
             return (Y)(this as IWritable);
         }
 

@@ -504,7 +504,7 @@ namespace MabOtherTest.BaseFile
             for (int i = 0;i < item3; i++) {
                 uint offset_i = ((uint)((offset + BaseOffset) + (i * 4))); //&offset[table]
                 Jump(offset_i);        
-                list.Add(ReadTypePointer<T,Y>(BaseOffset));
+                list.Add(ReadTypePointer<T,Y>(BaseOffset,constructor_param));
             }
             Jump(p);
             return list;

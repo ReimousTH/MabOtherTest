@@ -14,8 +14,8 @@ namespace MabOtherTest.Types
     {
         //Writable-Param, 
         public List<WritableParam> parameters = new();
-        uint Flag; // no idea for what 
-        uint Flag2; 
+        public uint Flag; // no idea for what 
+        public uint Flag2; 
 
         public FXNodeBase()
         {
@@ -53,6 +53,22 @@ namespace MabOtherTest.Types
                 parameters[i].ResetRead();
             }
 
+        }
+
+        public void ReadHead()
+        {
+            this.Flag = file.ReadType<uint>();
+            this.Flag2 = file.ReadType<uint>();
+            file.Jump(4, SeekOrigin.Current);
+            Console.WriteLine($"Node [{this.GetType():x}:{Flag:x}:{Flag2}:{file.GetPosition()-0xC:x}]");
+
+        }
+
+        public override Y Read<T, Y>()
+        {
+
+
+            return (Y)(this as IWritable);
         }
 
 

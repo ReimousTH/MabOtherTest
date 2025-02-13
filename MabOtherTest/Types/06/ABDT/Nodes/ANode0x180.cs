@@ -5,22 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MabOtherTest.Types
 {
-    public class ANode180 : ANodeBase
+    //828FBD1C
+    public class ANode180_AKLF : ANodeBase
     {
 
-        public ANode180()
+        public ANode180_AKLF()
         {
             this.nodesflag = 8;
         }
-        public ANode180(int IndexCount) : base(IndexCount)
+        public ANode180_AKLF(int IndexCount) : base(IndexCount)
         {
         }
 
 
-        public ANode180(uint NodesFlag)
+        public ANode180_AKLF(uint NodesFlag)
         {
             this.nodesflag = NodesFlag;
         }
@@ -28,7 +30,7 @@ namespace MabOtherTest.Types
 
 
         //Index-Node-Only
-        public List<ANodeBase> nodes2 = new();
+        public List<FXRoot> nodes2 = new();
         public List<ANodeBase> nodes3 = new();
         public List<ANodeBase> nodes4 = new();
 
@@ -159,29 +161,18 @@ namespace MabOtherTest.Types
 
             var nodes_saved = file.GetMark<(uint, uint, uint)>(this, "ChildCountOffset");
 
-            var nodes2_count = file.ReadType<uint>();
+            var nodes2_count = file.ReadType<uint>();   //0x90,0x94
             var nodes2_offset = file.ReadType<uint>();
+             
+            var nodes3_count = file.ReadType<uint>(); //0x98,0x9C
+            var nodes3_offset = file.ReadType<uint>(); 
 
-            var nodes3_count = file.ReadType<uint>();
-            var nodes3_offset = file.ReadType<uint>();
-
-            var nodes4_count = file.ReadType<uint>();
+            var nodes4_count = file.ReadType<uint>();   //0xA0,0xA4
             var nodes4_offset = file.ReadType<uint>();
 
-            var HaveIndex0_Child = nodes2_count > 0 ? true : false;
-            var HaveIndex1_Child = nodes3_count > 0 ? true : false;
-            var HaveIndex2_Child = nodes4_count > 0 ? true : false;
-
-         
-         
-            Console.WriteLine($"Node0x180[Children-Regular] : {(file.ReadTypeBaseAt<uint>(offset-0x4)):x}");
-            if (HaveIndex0_Child || HaveIndex1_Child || HaveIndex2_Child)
-            {
-                Console.WriteLine($"Node0x180[Other] : {(nodes2_offset+baseoffs):x}:{(nodes3_offset+ baseoffs):x}:{(nodes4_offset + baseoffs):x}");
-            }
 
 
-
+            //FX -PARTS ( for each ??? )
             var nodes5_count = file.ReadType<uint>();
             var nodes5_offset = file.ReadType<uint>();
 
@@ -193,19 +184,31 @@ namespace MabOtherTest.Types
             var nodes7_offset = file.ReadType<uint>();
 
 
+            uint flags = (uint)new int[] { (int)nodes_saved.Item2,(int)nodes2_count, (int)nodes3_count, (int)nodes4_count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
 
-            uint flags = (uint)new int[] { (int)nodes_saved.Item2, (int)nodes2_count, (int)nodes3_count, (int)nodes4_count }.Select(i => i > 0 ? 1 : 0).ToList().Sum();
-            flags -= 1;
-            if (flags <= 0) flags = 0;
 
-            this.Indexes.Capacity = (int)flags;
+            Console.WriteLine($"Node{GetNodeType():x} ChildFlag : {nodes_saved.Item1}");
+
+            var flg = nodes_saved.Item1;
+         
+            if (flg == 8 ) // 828FADD4 so_faint
+            {
+                flags = 1;
+            }
+            else if (flg == 0)
+            {
+                flags = 2;
+            }
+            this.index_count_pass = (int)flags;
+
 
 
             if (nodes5_count > 0 || nodes6_count > 0 || nodes7_count > 0)
             {
-                Console.WriteLine($"Node0x180[FX] : {(nodes5_count + baseoffs):x}:{(nodes6_offset + baseoffs):x}:{(nodes7_offset + baseoffs):x}");
+                //  Console.WriteLine($"Node0x180[FX] : {(nodes5_count + baseoffs):x}:{(nodes6_offset + baseoffs):x}:{(nodes7_offset + baseoffs):x}");
             }
-
+            var base_offset = file.GetMark<uint>(this, "Offset");
+      //      this.nodes2 = file.ReadListOfIWriteableAt<FXRoot, FXRoot>(nodes2_offset, base_offset, nodes2_count, new object[] { });
             base.ReadChildren(); //
         }
 
@@ -230,7 +233,7 @@ namespace MabOtherTest.Types
             if (flags <= 0) flags = 0;
 
             CheckNode(nodes,flags);
-            CheckNode(nodes2,flags);
+      //      CheckNode(nodes2,flags);
             CheckNode(nodes3,flags);
             CheckNode(nodes4,flags);
 

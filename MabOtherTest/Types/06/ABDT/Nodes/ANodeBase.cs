@@ -11,21 +11,24 @@ namespace MabOtherTest.Types
 {
     //ABDA_READ_FX_ROOT(828FB2E8)
     //Node 0x180......
-    //0x88-0x8C (Children Count, Children Pointers->)
+    //0x88,0x8C (Children Count, Children Pointers->)
 
-    //0xA0-0xA4 (Children Count, Children Pointers->)
-    //0x90-0x94 (Children Count, Children Pointers->)
-    //0x98-0x9C (Children Count, Children Pointers->)
+    //0xA0,0xA4 (Children Count, Children Pointers->)
+    //0x90,0x94 (Children Count, Children Pointers->)
+    //0x98,0x9C (Children Count, Children Pointers->)
 
 
 
     //828F6560(Here why ,  a2 = *(_DWORD *)(**(_DWORD **)(*(_DWORD *)(a1 + 0x1C) + 0xBC) + 4);)
     //but 0xA8-0xAC, 0xB0-0xB4 not defined here but i guess space allocated for nodes also
-    //0xA8-0xAC (Children Count, Children Pointers->) Other Node Types I Think
-    //0xB0-0xB4 (Children Count, Children Pointers->) Other Node Types I Think
-    //0xB8-0xBC (Children Count, Children Pointers->[RootFXNode->FXNode])
+    //0xA8,0xAC (Children Count, Children Pointers->) Other Node Types I Think
+    //0xB0,0xB4 (Children Count, Children Pointers->) Other Node Types I Think
+    //0xB8,0xBC (Children Count, Children Pointers->[RootFXNode->FXNode])
 
 
+    //828FADD4 (0x180 indexes nin hcild)
+
+    // 828FBCB4 (0x180,0x80) SO NODES COUNT ARE FIXED, SHEEEEET
 
 
 
@@ -36,6 +39,8 @@ namespace MabOtherTest.Types
 
  
         public List<uint> Indexes = new();
+        public int index_count = 0;
+        public int index_count_pass = 0;
 
         /*
         //3-is max
@@ -58,7 +63,12 @@ namespace MabOtherTest.Types
         }
         public ANodeBase(int IndexCount)
         {
-            Indexes = new List<uint>(IndexCount);
+            if (IndexCount > 0)
+            {
+
+            }
+            this.index_count = IndexCount;
+       
         }
 
         public virtual uint GetNodeType()
@@ -94,16 +104,17 @@ namespace MabOtherTest.Types
 
         public virtual void ReadHeadIndex()
         {
-            for (int i = 0; i < Indexes.Capacity; i++)
+            for (int i = 0; i < index_count; i++)
             {
-                Indexes[i]=(file.ReadType<uint>());
+                Indexes.Add(file.ReadType<uint>());
             }
+            index_count = 0; //Reset
         }
         public virtual void ReadHead()
         {
             var NodeType = file.ReadType<uint>();
             var NodeFlag = file.ReadType<uint>();
-            Console.WriteLine($"Node [{NodeType:x}:{NodeFlag:x}:{file.GetPosition():x}]");
+            Console.WriteLine($"Node [{NodeType:x}:{NodeFlag:x}:Indexes={Indexes.Count}:{file.GetPosition():x}]");
         }
         public override Y Read<T,Y>()
         {
@@ -128,7 +139,7 @@ namespace MabOtherTest.Types
             //ReadListOfIWriteable :)
             var data = file.GetMark<(uint, uint, uint)>(this, "ChildCountOffset");
             var base_offset = file.GetMark<uint>(this, "Offset");
-            this.nodes = file.ReadListOfIWriteableAt<ANodeReadable,ANodeBase>(data.Item3,base_offset,data.Item2,new object[] {Indexes.Capacity}).OfType<ANodeBase>().ToList();
+            this.nodes = file.ReadListOfIWriteableAt<ANodeReadable,ANodeBase>(data.Item3,base_offset,data.Item2,new object[] { index_count_pass }).OfType<ANodeBase>().ToList();
 
         }
 
